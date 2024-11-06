@@ -91,27 +91,56 @@ public class TaskDataAccess {
      * @param code 取得するタスクのコード
      * @return 取得したタスク
      */
-    // public Task findByCode(int code) {
-    // try () {
-
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // return null;
-    // }
+    public Task findByCode(int code) {
+        Task task = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            reader.readLine();
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                if (!(Integer.parseInt(values[0]) == code))
+                    continue;
+                // Code,Name,Status,Rep_User_Code
+                int readCode = Integer.parseInt(values[0]);
+                String name = values[1];
+                int status = Integer.parseInt(values[2]);
+                // values[3]はUserのCode、UserのCodeでfindする
+                User user = userDataAccess.findByCode(Integer.parseInt(values[3]));
+                task = new Task(readCode, name, status, user);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return task;
+    }
 
     /**
      * タスクデータを更新します。
      * 
      * @param updateTask 更新するタスク
      */
-    // public void update(Task updateTask) {
-    // try () {
-
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    // }
+    public void update(Task updateTask) {
+        List<Task> tasks = findAll();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            // タイトル行を書く
+            writer.write("Code,Name,Status,Rep_User_Code");
+            // 書き込むtaskを決める
+            // updateTaskとCodeが同じならupdateTaskに置換、そうじゃないならそのままでline生成
+            String line;
+            for (Task task : tasks) {
+                if (task.getCode() == updateTask.getCode()) {
+                    line = createLine(updateTask);
+                } else {
+                    line = createLine(task);
+                }
+                // 書き込む
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * コードを基にタスクデータを削除します。

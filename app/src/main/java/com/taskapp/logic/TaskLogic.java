@@ -1,13 +1,15 @@
 package com.taskapp.logic;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.taskapp.dataaccess.LogDataAccess;
 import com.taskapp.dataaccess.TaskDataAccess;
 import com.taskapp.dataaccess.UserDataAccess;
+import com.taskapp.exception.AppException;
+import com.taskapp.model.Log;
 import com.taskapp.model.Task;
 import com.taskapp.model.User;
-import com.taskapp.exception.AppException;
 
 public class TaskLogic {
     private final TaskDataAccess taskDataAccess;
@@ -66,6 +68,7 @@ public class TaskLogic {
             System.out.println(
                     task.getCode() + ". タスク名：" + task.getName() + ", 担当者名：" + showRepUser + ", ステータス：" + showStatus);
         });
+        System.out.println();
     }
 
     /**
@@ -85,9 +88,15 @@ public class TaskLogic {
         if (repUser == null) {
             throw new AppException("存在するユーザーコードを入力してください");
         }
-        Task task = new Task(code, name, 0, repUserCode);
+        Task task = new Task(code, name, 0, repUser);
         taskDataAccess.save(task);
-        System.out.print("taskEの登録が完了しました。");
+        System.out.print(name + "の登録が完了しました。");
+
+        // ログを残す
+        // Task_Code,Change_User_Code,Status,Change_Date
+        // changeUserはlonginUserのUserCode
+        Log log = new Log(code, loginUser.getCode(), 0, LocalDate.now());
+        logDataAccess.save(log);
     }
 
     /**
@@ -101,9 +110,22 @@ public class TaskLogic {
      * @param loginUser ログインユーザー
      * @throws AppException タスクコードが存在しない、またはステータスが前のステータスより1つ先でない場合にスローされます
      */
-    // public void changeStatus(int code, int status,
-    // User loginUser) throws AppException {
-    // }
+    public void changeStatus(int code, int status, User loginUser) throws AppException {
+        if (taskDataAccess.findByCode(code) == null) {
+            throw new AppException("存在するタスクコードを入力してください");
+        } else if (status - (taskDataAccess.findByCode(code).getStatus()) > 1) {
+            throw new AppException("ステータスは、前のステータスより1つ先のもののみを選択してください");
+        }
+        String name = taskDataAccess.findByCode(code).getName();
+        Task updateTask = new Task(code, name, status, loginUser);
+        taskDataAccess.update(updateTask);
+
+        // ログを残す
+        // Task_Code,Change_User_Code,Status,Change_Date
+        // changeUserはlonginUserのUserCode
+        Log log = new Log(code, loginUser.getCode(), status, LocalDate.now());
+        logDataAccess.save(log);
+    }
 
     /**
      * タスクを削除します。
