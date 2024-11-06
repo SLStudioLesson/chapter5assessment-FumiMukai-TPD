@@ -207,14 +207,14 @@ public class TaskUI {
                 System.out.println("どのステータスに変更するか選択してください。");
                 System.out.println("1. 着手中, 2. 完了");
                 System.out.print("選択肢：");
-                String selectedSubMenu = reader.readLine();
+                String selectedStatus = reader.readLine();
                 System.out.println();
-                if (!isNumeric(selectedSubMenu)) {
+                if (!isNumeric(selectedStatus)) {
                     System.out.println("ステータスは半角の数字で入力してください");
                     System.out.println();
                     continue;
                 }
-                switch (selectedSubMenu) {
+                switch (selectedStatus) {
                     case "1":
                         taskLogic.changeStatus(Integer.parseInt(chageTaskCode), 1, loginUser);
                         break;

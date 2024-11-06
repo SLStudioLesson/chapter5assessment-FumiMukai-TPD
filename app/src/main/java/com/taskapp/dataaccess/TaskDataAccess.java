@@ -124,6 +124,7 @@ public class TaskDataAccess {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             // タイトル行を書く
             writer.write("Code,Name,Status,Rep_User_Code");
+            writer.newLine();
             // 書き込むtaskを決める
             // updateTaskとCodeが同じならupdateTaskに置換、そうじゃないならそのままでline生成
             String line;
@@ -164,6 +165,6 @@ public class TaskDataAccess {
     private String createLine(Task task) {
         User repUser = task.getRepUser();
         int repUserCode = repUser.getCode();
-        return task.getCode() + "," + task.getName() + ",0," + repUserCode;
+        return task.getCode() + "," + task.getName() + "," + task.getStatus() + "," + repUserCode;
     }
 }

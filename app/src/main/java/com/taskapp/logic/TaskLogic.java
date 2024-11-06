@@ -49,6 +49,7 @@ public class TaskLogic {
         tasks.forEach(task -> {
             String showRepUser;
             String showStatus;
+
             String loginEmail = loginUser.getEmail();
             User repUser = userDataAccess.findByCode(task.getRepUser().getCode());
             String repUserEmail = repUser.getEmail();
@@ -119,7 +120,8 @@ public class TaskLogic {
         String name = taskDataAccess.findByCode(code).getName();
         Task updateTask = new Task(code, name, status, loginUser);
         taskDataAccess.update(updateTask);
-
+        System.out.println("ステータスの変更が完了しました。");
+        System.out.println();
         // ログを残す
         // Task_Code,Change_User_Code,Status,Change_Date
         // changeUserはlonginUserのUserCode
